@@ -1,26 +1,34 @@
-require ("dotenv").config()
-const express = require("express")
+require("dotenv").config();
+const express = require("express");
 
-const port = process.env.PORT || 5001
+const Book = require("./books/model");
+const Genre = require("./genres/model");
 
-const Book = require ("./books/model")
-const bookRouter = require ("./books/routes")
+const bookRouter = require("./books/routes");
+const genreRouter = require("./genres/routes");
 
-const app = express()
+const port = process.env.PORT || 5001;
 
-app.use(bookRouter)
+const app = express();
 
-app.use(express.json())
+app.use(express.json());
 
-app.get("/health",(request,response) =>{  
-    response.send("api is healthy")
-})
+app.use(bookRouter);
+app.use(genreRouter);
 
-const syncTables = () =>{
-    Book.sync()
-}
+const syncTables = async () => {
+  Genre.hasOne(Book);
+  Book.belongsTo(Genre);
 
-app.listen(port,()=>{
-    syncTables ()
-    console.log("server is listening")
-})
+  Genre.sync();
+  Book.sync();
+};
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ message: "API is healthy" });
+});
+
+app.listen(port, () => {
+  syncTables();
+  console.log(`Server is listening on port ${port}`);
+});

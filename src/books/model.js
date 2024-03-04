@@ -23,3 +23,4 @@ const Book = sequelize.define(
 );
 
 module.exports = Book;
+
